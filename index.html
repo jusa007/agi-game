@@ -1,1 +1,1555 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agileday Game Changer — Ops Rush</title>
+  <style>
+    :root{
+      --bg: #0b1220;
+      --panel:#0f1b33;
+      --panel2:#0c1730;
+      --text:#e9eefc;
+      --muted:#a9b6d8;
 
+      --good:#30d18b;
+      --warn:#ffcc66;
+      --bad:#ff5c7a;
+      --accent:#7aa2ff;
+
+      --stroke: rgba(255,255,255,.10);
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 20px;
+
+      --glow: 0 0 0 rgba(0,0,0,0);
+      --shine: rgba(255,255,255,.00);
+
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    body.theme-trad{
+      --bg:#0a0f19;
+      --panel:#0c1322;
+      --panel2:#0a1220;
+      --text:#e6ebf7;
+      --muted:#9aa6c6;
+
+      --accent:#8a97b6;
+      --good:#7a8aa0;
+      --warn:#c2b79e;
+      --bad:#c4a0a7;
+
+      --stroke: rgba(255,255,255,.08);
+      --shadow: 0 10px 32px rgba(0,0,0,.45);
+
+      --glow: 0 0 0 rgba(0,0,0,0);
+      --shine: rgba(255,255,255,.00);
+    }
+
+    body.theme-agi{
+      --bg:#071022;
+      --panel:#0c1a3a;
+      --panel2:#081833;
+      --text:#eef3ff;
+      --muted:#b5c3e6;
+
+      --accent:#7aa2ff;
+      --good:#30d18b;
+      --warn:#ffcc66;
+      --bad:#ff5c7a;
+
+      --stroke: rgba(255,255,255,.14);
+      --shadow: 0 16px 48px rgba(0,0,0,.38);
+
+      --glow: 0 0 28px rgba(122,162,255,.18);
+      --shine: rgba(122,162,255,.12);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(122,162,255,.14), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(48,209,139,.08), transparent 60%),
+        radial-gradient(900px 600px at 50% 110%, rgba(255,92,122,.06), transparent 65%),
+        var(--bg);
+      transition: background .5s ease;
+      position:relative;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-120px;
+      pointer-events:none;
+      opacity:0;
+      background:
+        radial-gradient(700px 420px at 20% 20%, rgba(122,162,255,.22), transparent 60%),
+        radial-gradient(640px 420px at 85% 30%, rgba(48,209,139,.16), transparent 65%),
+        radial-gradient(760px 520px at 55% 90%, rgba(255,204,102,.12), transparent 70%);
+      filter: blur(2px);
+      transition: opacity .6s ease;
+      animation: floatGlow 6s ease-in-out infinite;
+      z-index:0;
+    }
+    body.theme-agi::before{ opacity:1; }
+
+    @keyframes floatGlow{
+      0%{ transform: translateY(0px); }
+      50%{ transform: translateY(10px); }
+      100%{ transform: translateY(0px); }
+    }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:0;
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,.11) 0 1px, transparent 2px),
+        radial-gradient(circle at 70% 20%, rgba(255,255,255,.10) 0 1px, transparent 2px),
+        radial-gradient(circle at 50% 60%, rgba(255,255,255,.08) 0 1px, transparent 2px),
+        radial-gradient(circle at 85% 70%, rgba(255,255,255,.07) 0 1px, transparent 2px),
+        radial-gradient(circle at 12% 75%, rgba(255,255,255,.06) 0 1px, transparent 2px);
+      background-size: 420px 320px;
+      animation: sparkle 10s linear infinite;
+      z-index:0;
+      transition: opacity .6s ease;
+    }
+    body.theme-agi::after{ opacity:.8; }
+    @keyframes sparkle{
+      0%{ transform: translateY(0px); }
+      50%{ transform: translateY(-12px); }
+      100%{ transform: translateY(0px); }
+    }
+
+    a{color:inherit}
+
+    .app{
+      width:min(1100px, 100%);
+      display:grid;
+      grid-template-rows: auto auto 1fr;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:stretch;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow), var(--glow);
+      transition: box-shadow .45s ease, border-color .45s ease, background .45s ease;
+    }
+
+    .title{
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .badge{
+      font-family: var(--mono);
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      color: var(--muted);
+      background: rgba(0,0,0,.18);
+      white-space:nowrap;
+    }
+
+    .h1{
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size:16px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size:13px;
+      margin-top:2px;
+    }
+    .title .grow{flex:1}
+
+    .controls{
+      padding:12px 14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    button{
+      appearance:none;
+      border:1px solid var(--stroke);
+      background: rgba(122,162,255,.12);
+      color: var(--text);
+      padding:10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.2px;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease, filter .45s ease;
+      user-select:none;
+    }
+    button:hover{background: rgba(122,162,255,.18); border-color: rgba(255,255,255,.18);}
+    button:active{transform: translateY(1px);}
+
+    button.secondary{ background: rgba(255,255,255,.06); }
+    button.good{ background: rgba(48,209,139,.18); }
+    button.good:hover{ background: rgba(48,209,139,.24); }
+    button.danger{ background: rgba(255,92,122,.18); }
+    button.danger:hover{ background: rgba(255,92,122,.24); }
+    button:disabled{
+      cursor:not-allowed;
+      opacity:.55;
+      filter:saturate(.7);
+    }
+
+    .hud{
+      display:grid;
+      grid-template-columns: 1.05fr 1fr 1fr;
+      gap:12px;
+    }
+    .hud .box{
+      padding:12px 14px;
+      border-radius: var(--radius2);
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .label{color:var(--muted); font-size:12px;}
+    .value{font-family:var(--mono); font-weight:800;}
+
+    .bar{
+      width: 180px;
+      max-width: 55%;
+      height:10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      overflow:hidden;
+    }
+    .bar > i{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(48,209,139,.95), rgba(255,204,102,.95), rgba(255,92,122,.95));
+      border-radius:999px;
+      transition: width .15s ease;
+      filter: saturate(.9);
+    }
+    body.theme-trad .bar > i{ filter: saturate(.55); }
+
+    .hudStack{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      width:100%;
+    }
+    .hudRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      width:100%;
+    }
+
+    .main{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      align-items:stretch;
+    }
+    .pane{
+      padding:14px;
+      display:grid;
+      grid-template-rows: auto auto 1fr;
+      gap:12px;
+      min-height: 470px;
+    }
+    .paneHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .paneTitle{
+      font-weight:900;
+      font-size:15px;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      color: var(--muted);
+      background: rgba(0,0,0,.20);
+      white-space:nowrap;
+    }
+    .hint{
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.25rem;
+    }
+
+    .tools{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+    .tool{
+      flex:1;
+      min-width: 120px;
+      padding:10px 10px;
+      border-radius: 14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      cursor:pointer;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      transition: background .15s ease, border-color .15s ease, transform .05s ease, filter .45s ease;
+      filter: saturate(.85);
+    }
+    body.theme-trad .tool{ filter: saturate(.55); }
+    .tool:hover{background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.16);}
+    .tool:active{transform: translateY(1px);}
+    .tool.active{
+      background: rgba(122,162,255,.18);
+      border-color: rgba(122,162,255,.55);
+      filter:saturate(1);
+    }
+    .tool small{
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .tray{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap:10px;
+      border:1px dashed rgba(255,255,255,.18);
+      border-radius: var(--radius2);
+      padding:12px;
+      background: rgba(0,0,0,.14);
+      position:relative;
+      overflow:hidden;
+      transition: background .45s ease, border-color .45s ease;
+    }
+
+    .tray::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      opacity:.0;
+      background: radial-gradient(600px 220px at 20% 0%, var(--shine), transparent 60%);
+      transition: opacity .6s ease;
+    }
+    body.theme-agi .tray::before{ opacity:.75; }
+
+    .trayHeader{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+    .trayHeader .small{
+      color: var(--muted);
+      font-size:12px;
+    }
+
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      overflow:auto;
+      padding-right:4px;
+      position:relative;
+      z-index:1;
+    }
+
+    .task{
+      border:1px solid var(--stroke);
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      padding:10px 10px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      transition: background .35s ease, border-color .35s ease, filter .45s ease;
+      filter: saturate(.9);
+    }
+    body.theme-trad .task{ filter: saturate(.55); }
+
+    .task .left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      min-width:0;
+    }
+    .task .name{
+      font-weight:800;
+      font-size:13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .task .meta{
+      font-family:var(--mono);
+      font-size:11px;
+      color: var(--muted);
+    }
+    .task .right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .chip{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    .deadline{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.12);
+      white-space:nowrap;
+    }
+    .deadline.soon{border-color: rgba(255,204,102,.45); color: var(--warn);}
+    .deadline.late{border-color: rgba(255,92,122,.55); color: var(--bad);}
+    body.theme-trad .deadline.soon{ color: rgba(194,183,158,.95); border-color: rgba(194,183,158,.35); }
+    body.theme-trad .deadline.late{ color: rgba(196,160,167,.95); border-color: rgba(196,160,167,.35); }
+
+    .actionBtn{
+      padding:8px 10px;
+      border-radius: 12px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      cursor:pointer;
+      user-select:none;
+      transition: background .15s ease, transform .05s ease, border-color .15s ease, filter .45s ease;
+      white-space:nowrap;
+      filter:saturate(.9);
+    }
+    body.theme-trad .actionBtn{ filter:saturate(.65); }
+    .actionBtn:hover{background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.18);}
+    .actionBtn:active{transform: translateY(1px);}
+    .actionBtn.primary{
+      background: rgba(48,209,139,.18);
+      border-color: rgba(48,209,139,.45);
+      filter:saturate(1);
+    }
+    .actionBtn.primary:hover{background: rgba(48,209,139,.24);}
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background: rgba(0,0,0,.62);
+      z-index:99;
+    }
+
+    .modal{
+      width:min(880px, 100%);
+      border-radius: 24px;
+      border:1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(15,27,51,.98), rgba(11,18,32,.98));
+      box-shadow: 0 30px 80px rgba(0,0,0,.6);
+      padding:18px;
+    }
+    body.theme-agi .modal{
+      box-shadow: 0 30px 90px rgba(0,0,0,.55),
+                  0 0 0 1px rgba(122,162,255,.14),
+                  0 0 40px rgba(122,162,255,.14);
+    }
+
+    .modalTop{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+    .modal h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+    }
+    .modal p{
+      margin:8px 0 0 0;
+      color: var(--muted);
+      line-height:1.4rem;
+      font-size:13px;
+      white-space:pre-line;
+    }
+
+    .modal .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .panel{
+      border:1px solid var(--stroke);
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      padding:12px;
+    }
+    .panel h3{margin:0; font-size:13px}
+    .panel ul{
+      margin:8px 0 0 16px;
+      color: var(--muted);
+      font-size:13px;
+      line-height:1.35rem;
+    }
+
+    .modalActions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:center;
+    }
+
+    .ctaBig{
+      padding:14px 18px !important;
+      border-radius: 18px !important;
+      font-size: 14px !important;
+      letter-spacing:.3px !important;
+      width: min(340px, 100%);
+      background: rgba(48,209,139,.24) !important;
+      border-color: rgba(48,209,139,.55) !important;
+      box-shadow: 0 0 0 1px rgba(48,209,139,.14), 0 16px 50px rgba(48,209,139,.18);
+      position:relative;
+    }
+    .ctaBig:hover{
+      background: rgba(48,209,139,.32) !important;
+      box-shadow: 0 0 0 1px rgba(48,209,139,.18), 0 22px 70px rgba(48,209,139,.22);
+    }
+
+    /* ROI-ish highlight line */
+    .roiPill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(48,209,139,.45);
+      background: rgba(48,209,139,.10);
+      color: rgba(233,238,252,.98);
+      font-weight:900;
+      font-family: var(--mono);
+      font-size:12px;
+      box-shadow: 0 0 0 1px rgba(48,209,139,.10), 0 14px 40px rgba(48,209,139,.12);
+    }
+    .roiPill b{ color: var(--good); }
+    .roiPill .muted{ color: var(--muted); font-weight:800; }
+    .roiWrap{ margin-top:12px; }
+
+    .kbd{
+      font-family: var(--mono);
+      font-size:11px;
+      padding:2px 6px;
+      border:1px solid var(--stroke);
+      border-radius: 8px;
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+
+    @media (max-width: 940px){
+      .hud{grid-template-columns: 1fr; }
+      .main{grid-template-columns: 1fr;}
+      .pane{min-height: unset;}
+      .bar{max-width: 60%;}
+      .modal .grid{grid-template-columns: 1fr;}
+      .modalActions{justify-content:stretch;}
+      .ctaBig{width:100%;}
+    }
+  </style>
+</head>
+
+<body class="theme-trad">
+  <div class="app">
+    <div class="topbar">
+      <div class="card title" style="flex:1; min-width: 290px;">
+        <div class="badge">AGILEDAY GAME CHANGER</div>
+        <div class="grow">
+          <div class="h1">Ops Rush — “Traditional tools” vs “Agileday flow”</div>
+          <div class="sub">Clear the work queue before the timer hits 0. Feel the difference in 1 minute.</div>
+        </div>
+        <div class="badge" id="modeBadge">MODE: TRADITIONAL</div>
+      </div>
+      <div class="card controls">
+        <button class="secondary" id="howBtn">How to play</button>
+        <button class="secondary" id="restartBtn">Restart</button>
+        <button class="good" id="startBtn">Start (1:00)</button>
+      </div>
+    </div>
+
+    <div class="hud">
+      <div class="card box">
+        <div class="hudStack">
+          <div class="hudRow">
+            <div>
+              <div class="label">TIME LEFT</div>
+              <div class="value" id="timeLeft">01:00</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">WAVE</div>
+              <div class="value" id="wave">0</div>
+            </div>
+          </div>
+          <div class="hudRow">
+            <div class="label">Tip: Switch on Agileday at <b>00:35</b></div>
+            <div class="label"><span class="kbd">A</span> switches when unlocked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card box">
+        <div class="hudStack">
+          <div class="hudRow">
+            <div>
+              <div class="label">TRAD SCORE</div>
+              <div class="value" id="scoreTrad">0</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">TRAD DONE</div>
+              <div class="value" id="doneTrad">0</div>
+            </div>
+          </div>
+          <div>
+            <div class="label">TRAD CHAOS</div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+              <div class="bar"><i id="chaosBarTrad"></i></div>
+              <div class="value" id="chaosValTrad">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card box">
+        <div class="hudStack">
+          <div class="hudRow">
+            <div>
+              <div class="label">AGI SCORE</div>
+              <div class="value" id="scoreAgi">0</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">AGI DONE</div>
+              <div class="value" id="doneAgi">0</div>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:10px;">
+            <div style="flex:1;">
+              <div class="label">AGI CHAOS</div>
+              <div style="display:flex; align-items:center; gap:10px; margin-top:6px;">
+                <div class="bar"><i id="chaosBarAgi"></i></div>
+                <div class="value" id="chaosValAgi">0%</div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+              <button class="secondary" id="switchBtn" title="Unlocks mid-game">Switch on Agileday</button>
+              <span class="label" id="switchHint">Unlocks at 00:35</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="card pane" id="traditionalPane">
+        <div class="paneHeader">
+          <div>
+            <div class="paneTitle">Traditional Ops <span class="pill">2-step handling</span></div>
+            <div class="hint">
+              Pick a tool first, then process a task. Every switch adds Chaos.
+              <div style="margin-top:6px;">
+                Quick keys: Tools <span class="kbd">1</span> CRM, <span class="kbd">2</span> PM, <span class="kbd">3</span> HR, <span class="kbd">4</span> Finance, <span class="kbd">5</span> Chat.
+              </div>
+            </div>
+          </div>
+          <div class="pill" id="traditionalStatus">LOCKED (start game)</div>
+        </div>
+
+        <div class="tools" id="tools">
+          <div class="tool" data-tool="CRM"><b>CRM</b><small>Opps</small></div>
+          <div class="tool" data-tool="PM"><b>Projects</b><small>Del.</small></div>
+          <div class="tool" data-tool="HR"><b>HR</b><small>People</small></div>
+          <div class="tool" data-tool="FIN"><b>Finance</b><small>Inv.</small></div>
+          <div class="tool" data-tool="CHAT"><b>Chat</b><small>Updates</small></div>
+        </div>
+
+        <div class="tray">
+          <div class="trayHeader">
+            <div><b>Work queue</b> <span class="small">— handle before deadlines</span></div>
+            <div class="small"><span class="kbd">Click</span> a task’s button to process (after choosing tool)</div>
+          </div>
+          <div class="stack" id="tradQueue"></div>
+        </div>
+      </div>
+
+      <div class="card pane" id="agiledayPane" style="opacity:.85;">
+        <div class="paneHeader">
+          <div>
+            <div class="paneTitle">Agileday Flow <span class="pill">1-click handling</span></div>
+            <div class="hint">
+              Connected data = less hunting. Suggestions and “one place to run ops”.
+              <div style="margin-top:6px;">
+                Quick key: <span class="kbd">Space</span> processes the top “suggested” task.
+              </div>
+            </div>
+          </div>
+          <div class="pill" id="agiledayStatus">LOCKED (switch on Agileday)</div>
+        </div>
+
+        <div class="tray" style="border-style: solid; background: rgba(48,209,139,.06);">
+          <div class="trayHeader">
+            <div><b>Agileday</b> <span class="small">— single source of truth for your business</span></div>
+            <div class="small"><span class="kbd">Click</span> “Do it” (no tool picking)</div>
+          </div>
+          <div class="stack" id="agiQueue"></div>
+        </div>
+
+        <div class="hint" style="margin-top:-2px;">
+          <span class="pill">Tip</span>
+          In Agileday mode, tasks are auto-routed (CRM ↔ staffing ↔ delivery ↔ time ↔ invoice) so you spend time on decisions, not copy-paste.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modalTop">
+        <div>
+          <h2 id="modalTitle">How to play</h2>
+
+          <!-- ✅ We keep p for text, and add a dedicated ROI area below -->
+          <p id="modalText"></p>
+          <div class="roiWrap" id="roiWrap" style="display:none;"></div>
+        </div>
+        <button class="secondary" id="closeModal">Close</button>
+      </div>
+
+      <div class="grid" id="modalGrid">
+        <div class="panel">
+          <h3>Traditional Ops (hard mode)</h3>
+          <ul>
+            <li>Choose the right tool first (CRM/Projects/HR/Finance/Chat).</li>
+            <li>Then process the task. Each tool switch adds <b>Chaos</b>.</li>
+            <li>Missed deadlines increase Chaos fast.</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>Agileday Flow (easy mode)</h3>
+          <ul>
+            <li>One unified queue with smart suggestions.</li>
+            <li>One-click processing (no tool hunting).</li>
+            <li>Chaos drops when you keep flow.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="secondary" id="modalSecondary">OK</button>
+        <button class="good" id="modalPrimary">Start</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const TASK_TYPES = [
+    { key:"OPP", name:"New sales opportunity needs skills + refs", tool:"CRM", basePts: 60, flavor:"Bring best people into pre-sales." },
+    { key:"OPEN", name:"Project opening: match availability + motivation", tool:"HR", basePts: 70, flavor:"Find right fit fast." },
+    { key:"ALLO", name:"Allocation conflict: bench risk next week", tool:"PM", basePts: 65, flavor:"Optimize utilization." },
+    { key:"TIME", name:"Timesheet pending: end of month is near", tool:"PM", basePts: 55, flavor:"Time reporting should be effortless." },
+    { key:"INV", name:"Invoice blocker: hours missing from billing", tool:"FIN", basePts: 75, flavor:"No surprises in invoicing." },
+    { key:"SLACK", name:"Stakeholder wants status update now", tool:"CHAT", basePts: 50, flavor:"Keep everyone aligned." }
+  ];
+
+  // ✅ Single source of truth: 1-minute game
+  const GAME_SECONDS = 60;
+
+  const state = {
+    running:false,
+    paused:false,
+
+    selectedTool:null,
+    timeLeft: GAME_SECONDS,
+    wave:0,
+
+    scoreTrad:0,
+    doneTrad:0,
+    chaosTrad:0,
+
+    scoreAgi:0,
+    doneAgi:0,
+    chaosAgi:0,
+
+    switchUnlocked:false,
+    agiEnabled:false,
+
+    tickHandle:null,
+    spawnHandle:null,
+
+    lastTool:null,
+    queues: { trad:[], agi:[] },
+    idSeq: 1,
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  const timeLeftEl = $("timeLeft");
+  const waveEl = $("wave");
+
+  const scoreTradEl = $("scoreTrad");
+  const doneTradEl  = $("doneTrad");
+  const chaosBarTrad = $("chaosBarTrad");
+  const chaosValTrad = $("chaosValTrad");
+
+  const scoreAgiEl = $("scoreAgi");
+  const doneAgiEl  = $("doneAgi");
+  const chaosBarAgi = $("chaosBarAgi");
+  const chaosValAgi = $("chaosValAgi");
+
+  const modeBadge = $("modeBadge");
+
+  const startBtn = $("startBtn");
+  const restartBtn = $("restartBtn");
+  const howBtn = $("howBtn");
+  const switchBtn = $("switchBtn");
+  const switchHint = $("switchHint");
+
+  const tradQueueEl = $("tradQueue");
+  const agiQueueEl = $("agiQueue");
+
+  const traditionalStatus = $("traditionalStatus");
+  const agiledayStatus = $("agiledayStatus");
+  const agiledayPane = $("agiledayPane");
+
+  const overlay = $("overlay");
+  const modalTitle = $("modalTitle");
+  const modalText = $("modalText");
+  const roiWrap = $("roiWrap");
+  const closeModal = $("closeModal");
+  const modalPrimary = $("modalPrimary");
+  const modalSecondary = $("modalSecondary");
+  const modalGrid = $("modalGrid");
+
+  const toolEls = Array.from(document.querySelectorAll(".tool"));
+
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const fmtTime = (sec) => {
+    const m = Math.floor(sec/60);
+    const s = sec%60;
+    return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  };
+
+  function setTheme(){
+    document.body.classList.toggle("theme-agi", state.agiEnabled);
+    document.body.classList.toggle("theme-trad", !state.agiEnabled);
+  }
+
+  function setSelectedTool(tool){
+    state.selectedTool = tool;
+    toolEls.forEach(el => el.classList.toggle("active", el.dataset.tool === tool));
+  }
+
+  function canSwitchNow(){
+    return state.switchUnlocked && state.running && !state.agiEnabled;
+  }
+
+  function showModal(title, text, primaryLabel="Start", secondaryLabel="OK", onPrimary=null, onSecondary=null, gridMode=true, primaryBig=false, roiHtml=null){
+    if(state.running) state.paused = true;
+
+    modalTitle.textContent = title;
+    modalText.textContent = text;
+    modalPrimary.textContent = primaryLabel;
+    modalSecondary.textContent = secondaryLabel;
+
+    modalGrid.style.display = gridMode ? "" : "none";
+
+    modalPrimary.classList.toggle("ctaBig", !!primaryBig);
+
+    if(roiHtml){
+      roiWrap.style.display = "";
+      roiWrap.innerHTML = roiHtml;
+    }else{
+      roiWrap.style.display = "none";
+      roiWrap.innerHTML = "";
+    }
+
+    modalPrimary.onclick = () => {
+      overlay.style.display="none";
+      state.paused = false;
+      onPrimary && onPrimary();
+    };
+    modalSecondary.onclick = () => {
+      overlay.style.display="none";
+      state.paused = false;
+      onSecondary && onSecondary();
+    };
+
+    overlay.style.display="flex";
+  }
+
+  function closeAnyModal(){
+    if(overlay.style.display === "flex"){
+      overlay.style.display = "none";
+      state.paused = false;
+    }
+  }
+
+  function updateHUD(){
+    timeLeftEl.textContent = fmtTime(state.timeLeft);
+    waveEl.textContent = state.wave;
+
+    scoreTradEl.textContent = state.scoreTrad;
+    doneTradEl.textContent = state.doneTrad;
+    chaosBarTrad.style.width = clamp(state.chaosTrad,0,100) + "%";
+    chaosValTrad.textContent = Math.round(clamp(state.chaosTrad,0,100)) + "%";
+
+    scoreAgiEl.textContent = state.scoreAgi;
+    doneAgiEl.textContent = state.doneAgi;
+    chaosBarAgi.style.width = clamp(state.chaosAgi,0,100) + "%";
+    chaosValAgi.textContent = Math.round(clamp(state.chaosAgi,0,100)) + "%";
+
+    modeBadge.textContent = "MODE: " + (state.agiEnabled ? "AGILEDAY FLOW" : "TRADITIONAL");
+
+    // ✅ Unlock at 00:35 (35 seconds left)
+    if(state.running && !state.switchUnlocked && state.timeLeft <= 35){
+      state.switchUnlocked = true;
+      switchHint.textContent = "Unlocked!";
+      switchBtn.classList.add("good");
+      switchBtn.classList.remove("secondary");
+    }
+
+    if(!state.running){
+      switchBtn.disabled = true;
+      switchHint.textContent = "Unlocks at 00:35";
+      switchBtn.classList.add("secondary");
+      switchBtn.classList.remove("good");
+    }else{
+      switchBtn.disabled = !canSwitchNow();
+      if(!state.switchUnlocked) switchHint.textContent = "Unlocks at 00:35";
+      if(state.agiEnabled){
+        switchHint.textContent = "Agileday is ON";
+        switchBtn.classList.add("good");
+        switchBtn.classList.remove("secondary");
+      }
+    }
+
+    traditionalStatus.textContent = state.running ? "ACTIVE" : "LOCKED (start game)";
+    agiledayStatus.textContent = state.agiEnabled ? "ACTIVE" : "LOCKED (switch on Agileday)";
+    agiledayPane.style.opacity = state.agiEnabled ? "1" : ".85";
+
+    setTheme();
+  }
+
+  function addChaosTrad(delta){ state.chaosTrad = clamp(state.chaosTrad + delta, 0, 100); }
+  function addChaosAgi(delta){ state.chaosAgi  = clamp(state.chaosAgi  + delta, 0, 100); }
+
+  function randomTaskType(){
+    const pool = ["OPP","OPEN","ALLO","TIME","OPP","ALLO","INV","SLACK","OPEN","TIME"];
+    const key = pool[Math.floor(Math.random()*pool.length)];
+    return TASK_TYPES.find(t => t.key === key);
+  }
+
+  function makeTask(){
+    const t = randomTaskType();
+    const ttl = 14 + Math.floor(Math.random()*10); // 14..23
+    const id = state.idSeq++;
+    return {
+      id,
+      key: t.key,
+      name: t.name,
+      tool: t.tool,
+      flavor: t.flavor,
+      basePts: t.basePts,
+      ttl
+    };
+  }
+
+  function deadlineClass(task){
+    const remaining = task.ttl;
+    if(remaining <= 5) return "late";
+    if(remaining <= 9) return "soon";
+    return "";
+  }
+
+  function suggestionText(task){
+    switch(task.key){
+      case "TIME": return "pre-filled from allocations → submit in one go";
+      case "ALLO": return "allocation signal → resolve conflict before it hits";
+      case "OPEN": return "match skills + availability + interest";
+      case "OPP": return "pull skills, CVs, and references into pre-sales";
+      case "INV": return "hours → invoice with fewer surprises";
+      case "SLACK": return "push update to team channel instantly";
+      default: return "connected context available";
+    }
+  }
+
+  function renderQueues(){
+    tradQueueEl.innerHTML = "";
+    agiQueueEl.innerHTML = "";
+
+    state.queues.trad.forEach(task => {
+      const row = document.createElement("div");
+      row.className = "task";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = task.name;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `Route → ${task.tool}  •  ${task.flavor}`;
+
+      left.appendChild(name);
+      left.appendChild(meta);
+
+      const right = document.createElement("div");
+      right.className = "right";
+
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = task.key;
+
+      const dl = document.createElement("div");
+      dl.className = "deadline " + deadlineClass(task);
+      dl.textContent = `⏳ ${task.ttl}s`;
+
+      const btn = document.createElement("div");
+      btn.className = "actionBtn";
+      btn.textContent = "Process";
+      btn.onclick = () => processTaskTraditional(task.id);
+
+      right.appendChild(chip);
+      right.appendChild(dl);
+      right.appendChild(btn);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      tradQueueEl.appendChild(row);
+    });
+
+    if(!state.agiEnabled){
+      const teaser = document.createElement("div");
+      teaser.className = "task";
+      teaser.innerHTML = `
+        <div class="left">
+          <div class="name">Unified queue will appear here</div>
+          <div class="meta">Switch on Agileday to see auto-routing + suggestions.</div>
+        </div>
+        <div class="right">
+          <div class="chip">FLOW</div>
+          <div class="deadline soon">⏳ faster</div>
+          <div class="actionBtn primary" style="opacity:.65; pointer-events:none;">Do it</div>
+        </div>
+      `;
+      agiQueueEl.appendChild(teaser);
+      return;
+    }
+
+    state.queues.agi.forEach(task => {
+      const row = document.createElement("div");
+      row.className = "task";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = task.name;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = `Suggested: ${suggestionText(task)}`;
+
+      left.appendChild(name);
+      left.appendChild(meta);
+
+      const right = document.createElement("div");
+      right.className = "right";
+
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = task.key;
+
+      const dl = document.createElement("div");
+      dl.className = "deadline " + deadlineClass(task);
+      dl.textContent = `⏳ ${task.ttl}s`;
+
+      const btn = document.createElement("div");
+      btn.className = "actionBtn primary";
+      btn.textContent = "Do it";
+      btn.onclick = () => processTaskAgileday(task.id);
+
+      right.appendChild(chip);
+      right.appendChild(dl);
+      right.appendChild(btn);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      agiQueueEl.appendChild(row);
+    });
+  }
+
+  function spawn(){
+    state.wave += 1;
+
+    const newTasks = 1 + (state.wave % 5 === 0 ? 1 : 0);
+    for(let i=0;i<newTasks;i++){
+      const task = makeTask();
+      state.queues.trad.push(task);
+      if(state.agiEnabled){
+        const copy = { ...task, ttl: task.ttl + 3 };
+        state.queues.agi.push(copy);
+      }
+    }
+
+    if(state.queues.trad.length > 9) addChaosTrad(4);
+    if(state.agiEnabled && state.queues.agi.length > 8) addChaosAgi(2);
+
+    renderQueues();
+    updateHUD();
+  }
+
+  function decayDeadlines(){
+    function tickQueue(queueName){
+      const q = state.queues[queueName];
+      for(let i=q.length-1;i>=0;i--){
+        q[i].ttl -= 1;
+        if(q[i].ttl <= 0){
+          if(queueName === "trad") addChaosTrad(6);
+          else addChaosAgi(2);
+          q.splice(i,1);
+        }
+      }
+    }
+    tickQueue("trad");
+    if(state.agiEnabled) tickQueue("agi");
+  }
+
+  function toolSwitchPenalty(nextTool){
+    if(state.lastTool && state.lastTool !== nextTool){
+      addChaosTrad(3);
+    }
+    state.lastTool = nextTool;
+  }
+
+  function processTaskTraditional(id){
+    if(!state.running || state.paused) return;
+    const idx = state.queues.trad.findIndex(t => t.id === id);
+    if(idx === -1) return;
+
+    const task = state.queues.trad[idx];
+    if(!state.selectedTool){
+      addChaosTrad(2);
+      toast("Pick a tool first 😅");
+      return;
+    }
+
+    toolSwitchPenalty(state.selectedTool);
+
+    if(state.selectedTool !== task.tool){
+      addChaosTrad(5);
+      toast(`Wrong tool → more copy/paste (${task.tool} needed)`);
+      return;
+    }
+
+    if(state.queues.trad.length >= 7) addChaosTrad(2);
+
+    const pts = Math.max(10, task.basePts - (14 - task.ttl) * 2);
+    state.scoreTrad += pts;
+    state.doneTrad += 1;
+
+    state.queues.trad.splice(idx,1);
+
+    addChaosTrad(1);
+
+    renderQueues();
+    updateHUD();
+  }
+
+  function processTaskAgileday(id){
+    if(!state.running || state.paused || !state.agiEnabled) return;
+    const idx = state.queues.agi.findIndex(t => t.id === id);
+    if(idx === -1) return;
+
+    const task = state.queues.agi[idx];
+
+    addChaosAgi(-3);
+
+    const pts = Math.max(20, task.basePts + 15 - (14 - task.ttl));
+    state.scoreAgi += pts;
+    state.doneAgi += 1;
+
+    state.queues.agi.splice(idx,1);
+
+    renderQueues();
+    updateHUD();
+  }
+
+  function processTopAgileday(){
+    if(!state.agiEnabled || !state.running || state.paused) return;
+    if(state.queues.agi.length === 0) return;
+    processTaskAgileday(state.queues.agi[0].id);
+  }
+
+  let toastTimer = null;
+  function toast(msg){
+    const elId = "toastEl";
+    let el = document.getElementById(elId);
+    if(!el){
+      el = document.createElement("div");
+      el.id = elId;
+      el.style.position="fixed";
+      el.style.left="50%";
+      el.style.bottom="18px";
+      el.style.transform="translateX(-50%)";
+      el.style.padding="10px 12px";
+      el.style.borderRadius="14px";
+      el.style.border="1px solid rgba(255,255,255,.14)";
+      el.style.background="rgba(0,0,0,.55)";
+      el.style.color="rgba(233,238,252,.95)";
+      el.style.fontWeight="800";
+      el.style.boxShadow="0 14px 40px rgba(0,0,0,.45)";
+      el.style.zIndex="120";
+      el.style.maxWidth="min(920px, calc(100% - 24px))";
+      el.style.whiteSpace="nowrap";
+      el.style.overflow="hidden";
+      el.style.textOverflow="ellipsis";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.display="block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.style.display="none"; }, 1200);
+  }
+
+  function showFlowUnlockedMoment(){
+    const text =
+      "✅ Agileday is ON — lights on.\n\n" +
+      "What just changed:\n" +
+      "• One inbox instead of five tools\n" +
+      "• Allocations → time entries become effortless\n" +
+      "• Hours → invoice blockers drop dramatically\n\n" +
+      "Now clear the queue with 1-click actions and keep AGI Chaos low.";
+    showModal("Flow unlocked", text, "Back to the queue", "Got it", () => {}, () => {}, false, false, null);
+  }
+
+  function enableAgileday(){
+    if(!canSwitchNow()) return;
+    state.agiEnabled = true;
+
+    addChaosAgi(-8);
+
+    toast("Agileday ON ✅ Unified flow unlocked");
+
+    const snapshot = state.queues.trad.slice(0, 6).map(t => ({...t, ttl: t.ttl + 5}));
+    state.queues.agi = state.queues.agi.concat(snapshot);
+
+    renderQueues();
+    updateHUD();
+    showFlowUnlockedMoment();
+  }
+
+  // ✅ ROI-ish helper: turns deltas into a single punchy line
+  function buildRoiHtml(){
+    const tradChaos = Math.round(clamp(state.chaosTrad, 0, 100));
+    const agiChaos  = Math.round(clamp(state.chaosAgi, 0, 100));
+
+    const chaosSaved = clamp(tradChaos - agiChaos, -100, 100);
+    const scoreLift  = state.scoreAgi - state.scoreTrad;
+    const doneLift   = state.doneAgi - state.doneTrad;
+
+    // Rough conversion: 10 chaos points ~ 1 hour/week of admin drag (game metaphor)
+    const hoursSaved = clamp(Math.round((Math.max(0, chaosSaved) / 10) * 1), 0, 12);
+
+    const chaosTxt = chaosSaved >= 0 ? `-${chaosSaved}% Chaos` : `+${Math.abs(chaosSaved)}% Chaos`;
+    const scoreTxt = scoreLift >= 0 ? `+${scoreLift} pts` : `-${Math.abs(scoreLift)} pts`;
+    const doneTxt  = doneLift >= 0 ? `+${doneLift} done` : `-${Math.abs(doneLift)} done`;
+
+    const headline = (state.agiEnabled && chaosSaved > 0)
+      ? `Agileday advantage: <b>${chaosTxt}</b>`
+      : `Agileday advantage: <b>${chaosTxt}</b>`;
+
+    const sub = (state.agiEnabled && chaosSaved > 0 && hoursSaved > 0)
+      ? `<span class="muted">That’s like ~</span><b>${hoursSaved}h/week</b><span class="muted"> less admin drag.</span>`
+      : `<span class="muted">Switch earlier and keep flow to reduce chaos.</span>`;
+
+    return `
+      <div class="roiPill">
+        <span>${headline}</span>
+        <span class="muted">•</span>
+        <span>${scoreTxt}</span>
+        <span class="muted">•</span>
+        <span>${doneTxt}</span>
+        <span class="muted">•</span>
+        <span>${sub}</span>
+      </div>
+    `;
+  }
+
+  function endGame(){
+    state.running = false;
+    state.paused = false;
+    clearInterval(state.tickHandle);
+    clearInterval(state.spawnHandle);
+    state.tickHandle = null;
+    state.spawnHandle = null;
+    switchBtn.disabled = true;
+
+    const tradChaos = Math.round(state.chaosTrad);
+    const agiChaos = Math.round(state.chaosAgi);
+
+    const text =
+      `Traditional track:\n` +
+      `• Score: ${state.scoreTrad}  • Done: ${state.doneTrad}  • Chaos: ${tradChaos}%\n\n` +
+      `Agileday track:\n` +
+      `• Score: ${state.scoreAgi}  • Done: ${state.doneAgi}  • Chaos: ${agiChaos}%\n\n` +
+      (state.agiEnabled
+        ? `Result: You experienced the switch. Now do it in real life — connect CRM, projects, staffing, time and invoicing.`
+        : `Result: You stayed in tool chaos. Want the shortcut? Switch on the operating platform that connects it all.`);
+
+    const roiHtml = buildRoiHtml();
+
+    showModal(
+      "Game Over — Ops Reality Check",
+      text,
+      "Book a demo",
+      "Play again",
+      () => { window.location.href = "https://www.agileday.com/free-trial"; },
+      () => reset(true),
+      false,
+      true,
+      roiHtml
+    );
+
+    updateHUD();
+  }
+
+  function reset(keepModalClosed=false){
+    state.running=false;
+    state.paused=false;
+
+    state.selectedTool=null;
+    state.timeLeft=GAME_SECONDS;
+    state.wave=0;
+
+    state.scoreTrad=0;
+    state.doneTrad=0;
+    state.chaosTrad=0;
+
+    state.scoreAgi=0;
+    state.doneAgi=0;
+    state.chaosAgi=0;
+
+    state.switchUnlocked=false;
+    state.agiEnabled=false;
+
+    state.lastTool=null;
+    state.queues.trad=[];
+    state.queues.agi=[];
+    state.idSeq=1;
+
+    clearInterval(state.tickHandle);
+    clearInterval(state.spawnHandle);
+    state.tickHandle=null;
+    state.spawnHandle=null;
+
+    startBtn.disabled = false;
+
+    setSelectedTool(null);
+    toolEls.forEach(el => el.classList.remove("active"));
+
+    switchBtn.classList.add("secondary");
+    switchBtn.classList.remove("good");
+
+    renderQueues();
+    updateHUD();
+
+    if(!keepModalClosed){
+      showModal(
+        "Ops Rush — 1 minute",
+        "You’ll experience two realities:\n\n• Traditional ops: switching tools + manual updates → Chaos\n• Agileday flow: connected data + smart suggestions → Flow\n\nGoal: keep chaos low and clear as many tasks as possible.\n\nTip: Agileday unlocks at 00:35.",
+        "Start",
+        "Close",
+        () => start(),
+        () => {},
+        true,
+        false,
+        null
+      );
+    }
+  }
+
+  function start(){
+    if(state.running) return;
+    state.running = true;
+    startBtn.disabled = true;
+
+    switchBtn.disabled = true;
+
+    let spawnMs = 1200;
+
+    spawn(); spawn();
+
+    state.spawnHandle = setInterval(() => {
+      if(!state.running || state.paused) return;
+      spawn();
+      spawnMs = Math.max(750, spawnMs - 18);
+      clearInterval(state.spawnHandle);
+      state.spawnHandle = setInterval(() => {
+        if(!state.running || state.paused) return;
+        spawn();
+      }, spawnMs);
+    }, spawnMs);
+
+    state.tickHandle = setInterval(() => {
+      if(!state.running || state.paused) return;
+
+      state.timeLeft -= 1;
+      decayDeadlines();
+
+      if(!state.agiEnabled){
+        addChaosTrad(0.85);
+      }else{
+        addChaosAgi(-0.35);
+        addChaosTrad(0.15);
+      }
+
+      if(state.chaosTrad >= 95) state.scoreTrad = Math.max(0, state.scoreTrad - 6);
+      if(state.chaosAgi  >= 95) state.scoreAgi  = Math.max(0, state.scoreAgi  - 3);
+
+      if(state.timeLeft <= 0){
+        state.timeLeft = 0;
+        updateHUD();
+        renderQueues();
+        endGame();
+        return;
+      }
+
+      updateHUD();
+      renderQueues();
+    }, 1000);
+
+    updateHUD();
+  }
+
+  startBtn.addEventListener("click", () => start());
+  restartBtn.addEventListener("click", () => reset(true));
+
+  howBtn.addEventListener("click", () => {
+    showModal(
+      "How to play",
+      "Traditional Ops: choose a tool, then process tasks. Switching tools adds Trad Chaos.\n\nAgileday Flow: unlock at 00:35 and switch on Agileday. Then tasks can be handled in one click with suggestions.\n\nYou’ll see separate Score + Chaos for both tracks.\n\nGame length: 1 minute.",
+      "Start",
+      "Close",
+      () => start(),
+      () => {},
+      true,
+      false,
+      null
+    );
+  });
+
+  closeModal.addEventListener("click", () => closeAnyModal());
+  switchBtn.addEventListener("click", () => enableAgileday());
+
+  toolEls.forEach(el => {
+    el.addEventListener("click", () => {
+      if(!state.running || state.paused) return;
+      setSelectedTool(el.dataset.tool);
+    });
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if(e.key === "Escape") closeAnyModal();
+    if(!state.running || state.paused) return;
+
+    if(e.key === "1") setSelectedTool("CRM");
+    if(e.key === "2") setSelectedTool("PM");
+    if(e.key === "3") setSelectedTool("HR");
+    if(e.key === "4") setSelectedTool("FIN");
+    if(e.key === "5") setSelectedTool("CHAT");
+
+    if(e.key === " "){
+      e.preventDefault();
+      processTopAgileday();
+    }
+
+    if((e.key === "a" || e.key === "A") && canSwitchNow()){
+      enableAgileday();
+    }
+  });
+
+  // Init
+  reset();
+  updateHUD();
+})();
+</script>
+</body>
+</html>
